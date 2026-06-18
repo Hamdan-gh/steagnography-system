@@ -25,12 +25,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ user }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
       <Sidebar userRole={user.role} onLogout={handleLogout} />
       
-      {/* Main content with responsive margins */}
+      {/* Main content with responsive margins and padding */}
       <main className="lg:ml-64 min-h-screen transition-all duration-300">
-        <div className="p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8">
+        <div className="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8 max-w-[2000px] mx-auto">
           <Outlet />
         </div>
       </main>
