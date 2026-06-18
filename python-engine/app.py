@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
+from flask import Flask, request, jsonify, send_file, make_response
 import os
 import re
 from werkzeug.utils import secure_filename
@@ -13,8 +12,7 @@ from image_processing import analyze_image_capacity
 app = Flask(__name__)
 
 # ---------------------------------------------------------------------------
-# CORS — allow Vercel frontend + local dev
-# Flask-CORS does NOT support wildcard strings like "https://*.vercel.app"
+# CORS — manual handling (Flask-CORS 4.x breaks with callable origins)
 # ---------------------------------------------------------------------------
 DEFAULT_ORIGINS = [
     'http://localhost:3000',
@@ -35,9 +33,9 @@ def _build_allowed_origins():
     return origins
 
 
-def is_origin_allowed(origin: str | None) -> bool:
+def is_origin_allowed(origin):
     if not origin:
-        return True
+        return False
     if origin in _build_allowed_origins():
         return True
     if VERCEL_ORIGIN_RE.match(origin):
@@ -45,26 +43,27 @@ def is_origin_allowed(origin: str | None) -> bool:
     return False
 
 
-CORS(
-    app,
-    resources={r'/*': {'origins': is_origin_allowed}},
-    methods=['GET', 'POST', 'OPTIONS'],
-    allow_headers=['Content-Type', 'Authorization'],
-    expose_headers=['Content-Type'],
-    supports_credentials=True,
-    max_age=3600,
-)
-
-
-@app.after_request
-def apply_cors_headers(response):
-    """Fallback CORS headers when upstream proxy strips them."""
+def _apply_cors_headers(response):
     origin = request.headers.get('Origin')
     if origin and is_origin_allowed(origin):
         response.headers['Access-Control-Allow-Origin'] = origin
         response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        response.headers['Access-Control-Max-Age'] = '3600'
         response.headers['Vary'] = 'Origin'
     return response
+
+
+@app.before_request
+def handle_cors_preflight():
+    if request.method == 'OPTIONS':
+        return _apply_cors_headers(make_response('', 204))
+
+
+@app.after_request
+def apply_cors_headers(response):
+    return _apply_cors_headers(response)
 
 
 try:
