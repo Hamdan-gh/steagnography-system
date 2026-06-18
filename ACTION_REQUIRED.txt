@@ -1,0 +1,80 @@
+╔══════════════════════════════════════════════════════════╗
+║                 ISSUE FOUND & FIXED!                     ║
+╚══════════════════════════════════════════════════════════╝
+
+🎯 PROBLEM: Your file (15.7 MB) exceeded the 10 MB limit
+
+✅ SOLUTION: I increased the limit to 50 MB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔴 ACTION REQUIRED: RESTART BOTH SERVERS
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 1: Restart Frontend                                │
+│                                                           │
+│  In the terminal running "npm run dev":                  │
+│  1. Press Ctrl+C to stop                                 │
+│  2. Run: npm run dev                                     │
+│  3. Wait for "Local: http://localhost:5173"              │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 2: Restart Backend (if running)                   │
+│                                                           │
+│  In the terminal running Python backend:                 │
+│  1. Press Ctrl+C to stop                                 │
+│  2. cd python-engine                                     │
+│  3. python app.py                                        │
+│  4. Wait for "Running on http://0.0.0.0:5000"           │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 3: Refresh Browser                                │
+│                                                           │
+│  1. Go to the Extract page                               │
+│  2. Press Ctrl+F5 (hard refresh)                         │
+│  3. Upload your 15.7 MB file again                       │
+│  4. Should work now! ✅                                   │
+└──────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 NEW LIMITS:
+
+• Frontend: 50 MB (was 10 MB)
+• Backend: 100 MB (was 50 MB)
+• Your file: 15.7 MB ✅ Now accepted!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ WHAT SHOULD HAPPEN AFTER RESTART:
+
+1. Upload your file (stego_BENJEEY-MULTIMEDIA-65.png)
+2. See green checkmark: ✓ Image loaded: ... (15.69 MB)
+3. Enter encryption key
+4. Click "Extract Audio"
+5. Audio extracts successfully! 🎉
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  IMPORTANT:
+
+The servers MUST be restarted for the new limits to take effect.
+Just refreshing the browser is NOT enough!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 WHAT WAS ACTUALLY WRONG:
+
+• Upload feature: ✅ Working perfectly
+• File selection: ✅ Working perfectly
+• File validation: ✅ Working perfectly (caught the size issue!)
+• Size limit: ❌ Too small (10 MB < 15.7 MB)
+
+The console message showed exactly what was wrong:
+"Image size exceeds 10MB"
+
+Now fixed! Just restart and try again! 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

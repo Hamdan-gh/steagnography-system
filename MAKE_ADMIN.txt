@@ -1,0 +1,168 @@
+╔══════════════════════════════════════════════════════════╗
+║         ADMIN DASHBOARD - SETUP GUIDE                    ║
+╚══════════════════════════════════════════════════════════╝
+
+✅ ADMIN DASHBOARD CREATED!
+
+Features:
+• Real-time system statistics
+• User management view
+• Activity monitoring
+• System health checks
+• Recent users list
+• Recent activity feed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔴 MAKE YOURSELF AN ADMIN:
+
+┌──────────────────────────────────────────────────────────┐
+│  OPTION 1: Via Supabase Dashboard (EASIEST)             │
+│                                                           │
+│  1. Go to: https://supabase.com/dashboard                │
+│  2. Select your project                                  │
+│  3. Click "Table Editor" in left sidebar                 │
+│  4. Open "users" table                                   │
+│  5. Find your user (by email)                            │
+│  6. Click the "role" cell                                │
+│  7. Change from "user" to "admin"                        │
+│  8. Press Enter to save                                  │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  OPTION 2: Via SQL Editor                                │
+│                                                           │
+│  1. Go to Supabase → SQL Editor                          │
+│  2. Paste this query:                                    │
+│                                                           │
+│     UPDATE users                                         │
+│     SET role = 'admin'                                   │
+│     WHERE email = 'your@email.com';                      │
+│                                                           │
+│  3. Replace 'your@email.com' with your email             │
+│  4. Click "Run"                                          │
+│  5. Should see: "Success. 1 row updated"                 │
+└──────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔄 RESTART FRONTEND:
+
+After making yourself admin:
+1. Press Ctrl+C in terminal
+2. Run: npm run dev
+3. Hard refresh browser: Ctrl+F5
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ ACCESS ADMIN DASHBOARD:
+
+1. Login to your account
+2. Look in sidebar - should see "Admin" menu item
+3. Click "Admin"
+4. See full dashboard with:
+   • System health indicators
+   • Total users count
+   • Total embeddings count
+   • Total extractions count
+   • Storage usage
+   • Recent users list
+   • Recent activity feed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 WHAT YOU'LL SEE:
+
+HEADER:
+• "Admin Dashboard" title with shield icon
+• Refresh button to reload data
+
+SYSTEM HEALTH (Blue card):
+• Database status (✓ or ✗)
+• Storage status (✓ or ✗)
+• Authentication status (✓ or ✗)
+
+STATS CARDS (4 cards):
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│ Total Users │ Embeddings  │ Extractions │ Storage     │
+│    [#]      │    [#]      │    [#]      │   [size]    │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+
+TABS:
+• Overview - Quick stats & system info
+• Users - Recent 10 users with details
+• Activity - Recent 10 operations with status
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 FEATURES:
+
+OVERVIEW TAB:
+✓ Average embeddings per user
+✓ Success rate percentage
+✓ Average storage per file
+✓ System status badges
+
+USERS TAB:
+✓ User avatar (first letter)
+✓ Full name and email
+✓ Role badge (admin/user)
+✓ Join date
+✓ Hover effects
+
+ACTIVITY TAB:
+✓ Embedding operations (green icon)
+✓ Extraction operations (blue icon)
+✓ User who did it
+✓ Status badge
+✓ Timestamp
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 SECURITY:
+
+• Only users with role = 'admin' can access
+• Non-admin users don't see "Admin" in menu
+• Direct URL access blocked for non-admins
+• All data fetched with RLS policies applied
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  IMPORTANT NOTES:
+
+1. ONLY ONE ADMIN INITIALLY
+   Make yourself admin first
+   Then you can promote others if needed
+
+2. RESTART REQUIRED
+   After changing role to admin
+   Restart frontend to see Admin menu
+
+3. DATABASE REQUIRED
+   Admin dashboard fetches from database
+   Run supabase_schema.sql if tables missing
+
+4. STORAGE REQUIRED
+   System health checks storage
+   Run supabase_storage_setup.sql if buckets missing
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DETAILED DOCS:
+
+See ADMIN_DASHBOARD.md for:
+• Complete feature list
+• Technical implementation
+• Data sources
+• Future enhancements
+• Troubleshooting guide
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 QUICK START:
+
+1. Make yourself admin in Supabase
+2. Restart frontend: npm run dev
+3. Refresh browser: Ctrl+F5
+4. Click "Admin" in sidebar
+5. Enjoy your admin dashboard! 🎉

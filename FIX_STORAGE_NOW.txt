@@ -1,0 +1,101 @@
+╔══════════════════════════════════════════════════════════╗
+║        STORAGE ERROR - QUICK FIX                         ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ ERROR: 400 Bad Request when uploading to storage
+
+✅ CAUSE: Storage buckets don't exist in Supabase yet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 QUICK FIX (5 minutes):
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 1: Open Supabase Dashboard                        │
+│                                                           │
+│  1. Go to: https://supabase.com/dashboard                │
+│  2. Select your project                                  │
+│  3. Click "SQL Editor" in left sidebar                   │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 2: Run SQL Script                                  │
+│                                                           │
+│  1. Open file: supabase_storage_setup.sql                │
+│  2. Copy ALL content (Ctrl+A, Ctrl+C)                    │
+│  3. Paste in SQL Editor                                  │
+│  4. Click "Run" button                                   │
+│  5. Wait for "Success. No rows returned"                 │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 3: Verify                                          │
+│                                                           │
+│  1. Go to "Storage" in left sidebar                      │
+│  2. Should see 3 buckets:                                │
+│     • images                                             │
+│     • audio                                              │
+│     • stego-images                                       │
+│  3. All buckets should show "Active"                     │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 4: Test                                            │
+│                                                           │
+│  1. Refresh your app (Ctrl+F5)                           │
+│  2. Go to Profile page                                   │
+│  3. Try uploading avatar                                 │
+│  4. Should work now! ✅                                   │
+└──────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📦 WHAT GETS CREATED:
+
+3 STORAGE BUCKETS:
+┌────────────────┬────────┬──────────┬──────────────────┐
+│ Bucket         │ Public │ Limit    │ Purpose          │
+├────────────────┼────────┼──────────┼──────────────────┤
+│ images         │ Yes    │ 100 MB   │ Avatars, covers  │
+│ audio          │ No     │ 20 MB    │ Audio files      │
+│ stego-images   │ Yes    │ 100 MB   │ Stego outputs    │
+└────────────────┴────────┴──────────┴──────────────────┘
+
+PLUS SECURITY POLICIES:
+• Users can upload to own folder
+• Users can delete own files  
+• Public buckets viewable by anyone
+• Private buckets only by owner
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ AFTER SETUP, YOU CAN:
+
+• Upload avatars on Profile page
+• Upload cover images on Embed page
+• Download stego images from History
+• Store extracted audio (if needed)
+• Share stego images via public URL
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  IMPORTANT:
+
+This is a ONE-TIME setup!
+Once done, storage works forever.
+No need to restart servers.
+Just refresh browser after setup.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DETAILED GUIDE:
+
+See STORAGE_SETUP_GUIDE.md for:
+• Manual setup via dashboard
+• Troubleshooting steps
+• Security explanations
+• Verification checklist
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 RUN THE SQL SCRIPT NOW AND YOU'RE DONE! 🚀

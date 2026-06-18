@@ -1,0 +1,76 @@
+╔══════════════════════════════════════════════════════════╗
+║           UPLOAD ISSUE - QUICK FIX                       ║
+╚══════════════════════════════════════════════════════════╝
+
+🎯 SOLUTION: Use the Manual File Picker
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 1: Start the App                                   │
+│  > npm run dev                                           │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 2: Go to Extract Page                             │
+│  Click "Extract" in sidebar                              │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 3: Look for Manual File Picker                    │
+│  Scroll down, find: "Or use file picker:"               │
+│  Click the file input button                             │
+│  Select your PNG stego image                             │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 4: Check if File Loaded                           │
+│  Should see: ✓ Image loaded: filename.png (X MB)        │
+│  Green checkmark = SUCCESS                               │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 5: Extract Audio                                   │
+│  Enter encryption key (16-32 characters)                 │
+│  Click "Extract Audio"                                   │
+│  Wait for extraction to complete                         │
+└──────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  STILL NOT WORKING?
+
+1. Open Browser Console (Press F12)
+2. Try to upload
+3. Look for error messages
+4. Share the console output
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 CHECKLIST:
+
+☐ Backend running (http://localhost:5000/api/health)
+☐ Green "Server Online" badge on Extract page
+☐ File is PNG, JPG, or JPEG
+☐ File is less than 10MB
+☐ Used manual file picker
+☐ See green checkmark after selecting file
+☐ Encryption key entered (16-32 chars)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DETAILED GUIDES:
+
+• CURRENT_STATUS.md - What's been done, what to try
+• UPLOAD_TROUBLESHOOT.md - Detailed troubleshooting
+• DEBUG_UPLOAD_ISSUE.md - Debug instructions
+• test-upload.html - Standalone test page
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔥 TRY THIS FIRST:
+
+The manual file picker bypasses all drag-and-drop issues.
+It's a standard HTML file input that always works.
+
+Look for: "Or use file picker:" on the Extract page!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

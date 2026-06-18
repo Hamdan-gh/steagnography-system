@@ -1,0 +1,108 @@
+╔══════════════════════════════════════════════════════════╗
+║           FILE SIZE LIMITS INCREASED                     ║
+╚══════════════════════════════════════════════════════════╝
+
+✅ UPDATED FILE SIZE LIMITS
+
+┌──────────────────────────────────────────────────────────┐
+│  FRONTEND LIMITS (constants/index.ts)                    │
+│                                                           │
+│  Images:  50MB  →  100MB                                 │
+│  Audio:   10MB  →   20MB                                 │
+│  Avatar:   2MB  →    5MB                                 │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  BACKEND LIMIT (python-engine/app.py)                    │
+│                                                           │
+│  Max Upload: 100MB  →  200MB                             │
+└──────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔴 ACTION REQUIRED: RESTART BOTH SERVERS
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 1: Restart Frontend                                │
+│                                                           │
+│  Press Ctrl+C in terminal, then:                         │
+│  npm run dev                                             │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 2: Restart Backend                                │
+│                                                           │
+│  Press Ctrl+C in terminal, then:                         │
+│  cd python-engine                                        │
+│  python app.py                                           │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  STEP 3: Hard Refresh Browser                           │
+│                                                           │
+│  Press Ctrl+F5                                           │
+└──────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ WHAT YOU CAN NOW UPLOAD:
+
+EMBED PAGE:
+✓ Cover Images: up to 100 MB
+✓ Audio Files: up to 20 MB
+
+EXTRACT PAGE:
+✓ Stego Images: up to 100 MB
+
+PROFILE PAGE:
+✓ Avatar Images: up to 5 MB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 FILE SIZE COMPARISON:
+
+OLD LIMITS:
+• Images:  10 MB  ❌ Too small
+• Audio:    5 MB  ❌ Too small
+• Avatar:   2 MB  ❌ Too small
+• Backend: 50 MB  ❌ Too small
+
+NEW LIMITS:
+• Images: 100 MB  ✅ Large enough for stego images
+• Audio:   20 MB  ✅ Large enough for long audio
+• Avatar:   5 MB  ✅ Large enough for high-res avatars
+• Backend: 200 MB ✅ Handles everything with room to spare
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  IMPORTANT NOTES:
+
+1. Servers MUST be restarted for new limits to take effect
+2. Browser MUST be hard refreshed (Ctrl+F5)
+3. Larger files take longer to upload/process
+4. Make sure you have enough disk space
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏱️  EXPECTED UPLOAD TIMES (approximate):
+
+LOCAL (localhost):
+• 10 MB file:  < 1 second
+• 50 MB file:  1-3 seconds
+• 100 MB file: 3-5 seconds
+
+NETWORK:
+• Depends on your internet speed
+• Fast connection (100 Mbps): ~10 seconds for 100MB
+• Slow connection (10 Mbps): ~80 seconds for 100MB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ FILES MODIFIED:
+
+1. src/constants/index.ts  - Frontend limits
+2. python-engine/app.py    - Backend limit
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 RESTART NOW TO USE NEW LIMITS! 🚀
