@@ -11,7 +11,23 @@ from metrics import calculate_all_metrics
 from image_processing import analyze_image_capacity
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS to allow Vercel frontend
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "https://steagnography-system.vercel.app",
+            "https://*.vercel.app"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "expose_headers": ["Content-Type"],
+        "supports_credentials": True,
+        "max_age": 3600
+    }
+})
 
 # Force stdout to be unbuffered for real-time logging
 sys.stdout.reconfigure(line_buffering=True)
