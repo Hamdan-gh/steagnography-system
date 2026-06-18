@@ -85,18 +85,52 @@ export class EmbeddingService {
       formData.append('ga_population_size', request.ga_population_size.toString());
     }
 
-    // Call the processing engine
-    const response = await apiService.post<EmbeddingResponse>(API_ENDPOINTS.EMBED, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        if (onProgress && progressEvent.total) {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          onProgress(progress);
+    // Call the processing engine via proxy first
+    let response: EmbeddingResponse;
+    try {
+      response = await apiService.post<EmbeddingResponse>(API_ENDPOINTS.EMBED, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress(progress);
+          }
+        },
+      });
+    } catch (err: any) {
+      console.warn('Primary embed POST failed, attempting direct backend fallback', err?.response?.status || err?.message);
+      const status = err?.response?.status;
+      const shouldFallback = [502, 504, 413].includes(status) || !err?.response;
+      const directBackend = (import.meta as any).env?.VITE_PROCESSING_ENGINE_URL;
+
+      if (shouldFallback && directBackend) {
+        try {
+          // Use axios directly to post to the backend URL (bypass Vercel proxy)
+          const axios = (await import('axios')).default;
+          const resp = await axios.post(`${directBackend}${API_ENDPOINTS.EMBED}`, formData, {
+            headers: {
+              // Let browser/axios set the multipart boundary
+            },
+            timeout: 15 * 60 * 1000, // 15 minutes for long processing
+            onUploadProgress: (progressEvent: any) => {
+              if (onProgress && progressEvent.total) {
+                const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                onProgress(progress);
+              }
+            },
+          });
+          toast(`Upload routed directly to backend`);
+          response = resp.data as EmbeddingResponse;
+        } catch (err2: any) {
+          console.error('Direct backend fallback also failed', err2);
+          throw err2;
         }
-      },
-    });
+      } else {
+        throw err;
+      }
+    }
 
     // Save to history with proper error handling
     try {
