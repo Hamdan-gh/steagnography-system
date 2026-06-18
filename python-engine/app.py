@@ -53,13 +53,22 @@ def _apply_cors_headers(response):
 
 @app.before_request
 def handle_cors_preflight():
+    """Handle CORS preflight requests."""
+    origin = request.headers.get('Origin')
+    print(f'Request from origin: {origin}, Method: {request.method}, Path: {request.path}')
+    
     if request.method == 'OPTIONS':
-        return _apply_cors_headers(make_response('', 204))
+        response = make_response('', 204)
+        return _apply_cors_headers(response)
 
 
 @app.after_request
 def apply_cors_headers(response):
-    return _apply_cors_headers(response)
+    """Apply CORS headers to all responses."""
+    response = _apply_cors_headers(response)
+    origin = request.headers.get('Origin')
+    print(f'Response headers for {origin}: {dict(response.headers)}')
+    return response
 
 
 @app.errorhandler(500)
