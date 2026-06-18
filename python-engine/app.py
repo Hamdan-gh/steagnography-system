@@ -5,6 +5,17 @@ from werkzeug.utils import secure_filename
 import traceback
 import sys
 
+# Import processing modules at startup to catch import errors early
+try:
+    from embed_audio import embed_audio_in_image
+    from extract_audio import extract_audio_from_image
+    from image_processing import analyze_image_capacity
+    print("✓ All processing modules loaded successfully")
+except ImportError as e:
+    print(f"✗ CRITICAL: Failed to import processing modules: {e}")
+    print(traceback.format_exc())
+    sys.exit(1)
+
 app = Flask(__name__)
 
 # ---------------------------------------------------------------------------
@@ -120,7 +131,6 @@ def health_check():
 
 @app.route('/api/analyze', methods=['POST', 'OPTIONS'])
 def analyze_capacity():
-    from image_processing import analyze_image_capacity
     try:
         if 'image' not in request.files:
             return jsonify({'error': 'No image file provided'}), 400
@@ -150,11 +160,14 @@ def analyze_capacity():
 
 @app.route('/api/embed', methods=['POST', 'OPTIONS'])
 def embed_audio():
-    from embed_audio import embed_audio_in_image
     try:
         print('=' * 60)
         print('STARTING EMBED REQUEST')
         print('=' * 60)
+        print(f'Content-Type: {request.content_type}')
+        print(f'Files in request: {list(request.files.keys())}')
+        print(f'Form data: {list(request.form.keys())}')
+        sys.stdout.flush()
 
         if 'cover_image' not in request.files or 'audio_file' not in request.files:
             return jsonify({'error': 'Missing required files'}), 400
@@ -187,13 +200,19 @@ def embed_audio():
         audio_path = os.path.join(app.config['UPLOAD_FOLDER'], audio_filename)
 
         print(f'Saving files: {cover_filename}, {audio_filename}')
+        sys.stdout.flush()
         cover_image.save(cover_path)
         audio_file.save(audio_path)
+        print(f'Files saved successfully')
+        sys.stdout.flush()
 
         cover_size = os.path.getsize(cover_path) / (1024 * 1024)
         audio_size = os.path.getsize(audio_path) / (1024 * 1024)
         print(f'File sizes: Image={cover_size:.2f}MB, Audio={audio_size:.2f}MB')
+        sys.stdout.flush()
 
+        print('Calling embed_audio_in_image...')
+        sys.stdout.flush()
         result = embed_audio_in_image(
             cover_path,
             audio_path,
@@ -201,6 +220,8 @@ def embed_audio():
             ga_generations=ga_generations,
             ga_population_size=ga_population_size,
         )
+        print('embed_audio_in_image completed successfully')
+        sys.stdout.flush()
 
         try:
             os.remove(cover_path)
@@ -208,18 +229,21 @@ def embed_audio():
         except Exception as cleanup_error:
             print(f'Warning: Could not cleanup files: {cleanup_error}')
 
-        print('EMBED REQUEST COMPLETED')
+        print('EMBED REQUEST COMPLETED SUCCESSFULLY')
+        print(f'Result keys: {list(result.keys())}')
+        sys.stdout.flush()
         return jsonify(result), 200
 
     except Exception as e:
         print(f'ERROR in embed_audio: {str(e)}')
+        print(f'Error type: {type(e).__name__}')
         print(traceback.format_exc())
+        sys.stdout.flush()
         return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/extract', methods=['POST', 'OPTIONS'])
 def extract_audio():
-    from extract_audio import extract_audio_from_image
     stego_path = None
     try:
         if 'stego_image' not in request.files:
