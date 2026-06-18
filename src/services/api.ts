@@ -1,18 +1,12 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-
-/** Production Render API — used when env var is not set on Vercel. */
-const PRODUCTION_API_URL = 'https://stegagen-api.onrender.com';
+import { API_BASE_URL } from '@/constants';
 
 class APIService {
   private client: AxiosInstance;
 
   constructor() {
-    const baseURL =
-      import.meta.env.VITE_PROCESSING_ENGINE_URL ||
-      (import.meta.env.PROD ? PRODUCTION_API_URL : 'http://localhost:5000');
-
     this.client = axios.create({
-      baseURL,
+      baseURL: API_BASE_URL,
       timeout: 600000, // 10 minutes for processing (increased from 5)
       headers: {
         'Content-Type': 'application/json',

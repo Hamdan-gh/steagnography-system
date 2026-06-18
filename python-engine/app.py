@@ -5,10 +5,6 @@ from werkzeug.utils import secure_filename
 import traceback
 import sys
 
-from embed_audio import embed_audio_in_image
-from extract_audio import extract_audio_from_image
-from image_processing import analyze_image_capacity
-
 app = Flask(__name__)
 
 # ---------------------------------------------------------------------------
@@ -66,6 +62,13 @@ def apply_cors_headers(response):
     return _apply_cors_headers(response)
 
 
+@app.errorhandler(500)
+def handle_internal_error(error):
+    """Ensure CORS headers are present on 500 responses."""
+    response = make_response(jsonify({'error': 'Internal server error'}), 500)
+    return _apply_cors_headers(response)
+
+
 try:
     sys.stdout.reconfigure(line_buffering=True)
 except Exception:
@@ -108,6 +111,7 @@ def health_check():
 
 @app.route('/api/analyze', methods=['POST', 'OPTIONS'])
 def analyze_capacity():
+    from image_processing import analyze_image_capacity
     try:
         if 'image' not in request.files:
             return jsonify({'error': 'No image file provided'}), 400
@@ -137,6 +141,7 @@ def analyze_capacity():
 
 @app.route('/api/embed', methods=['POST', 'OPTIONS'])
 def embed_audio():
+    from embed_audio import embed_audio_in_image
     try:
         print('=' * 60)
         print('STARTING EMBED REQUEST')
@@ -205,6 +210,7 @@ def embed_audio():
 
 @app.route('/api/extract', methods=['POST', 'OPTIONS'])
 def extract_audio():
+    from extract_audio import extract_audio_from_image
     stego_path = None
     try:
         if 'stego_image' not in request.files:
