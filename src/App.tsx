@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import WelcomePage from './pages/WelcomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import DashboardPage from './pages/DashboardPage';
 import EmbedPage from './pages/EmbedPage';
 import ExtractPage from './pages/ExtractPage';
@@ -169,6 +170,10 @@ function App() {
           <Route
             path="/signup"
             element={user ? <Navigate to="/dashboard" replace /> : <SignupPage />}
+          />
+          <Route
+            path="/verify-email"
+            element={user ? <Navigate to="/dashboard" replace /> : <VerifyEmailPage />}
           />
 
           {/* Protected Routes */}

@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { validateEmail, validatePassword } from '@/utils/validators';
 import { APP_NAME } from '@/constants';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_AUTH_SERVER_URL || 'http://localhost:3001';
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,23 +54,22 @@ const SignupPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const response = await axios.post(`${API_URL}/api/auth/register`, {
         email: formData.email,
         password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-            role: 'user',
-          },
-        },
+        fullName: formData.fullName
       });
 
-      if (error) throw error;
-
-      toast.success('Account created successfully! Please check your email for verification.');
-      navigate('/login');
+      if (response.data.success) {
+        toast.success('Verification code sent to your email!');
+        // Navigate to verification page
+        navigate('/verify-email', { 
+          state: { email: formData.email }
+        });
+      }
     } catch (error: any) {
-      toast.error(error.message || 'Signup failed');
+      const errorMessage = error.response?.data?.message || error.message || 'Signup failed';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
