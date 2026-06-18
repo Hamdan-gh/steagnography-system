@@ -61,7 +61,23 @@ class APIService {
 
   // Check health of processing engine
   async checkHealth(): Promise<{ status: string; version: string }> {
-    return this.get('/api/health');
+    try {
+      return await this.get('/api/health');
+    } catch (err: any) {
+      // If proxied request failed (502 Bad Gateway) and a direct backend URL
+      // is configured in Vercel env, attempt a direct call as a fallback.
+      const isProxy502 = err?.response?.status === 502;
+      const directBackend = (import.meta as any).env?.VITE_PROCESSING_ENGINE_URL;
+      if (isProxy502 && directBackend && API_BASE_URL === '') {
+        try {
+          const resp = await axios.get(`${directBackend}/api/health`, { timeout: 10000 });
+          return resp.data as { status: string; version: string };
+        } catch (err2) {
+          // Fall through to reject original error below
+        }
+      }
+      return Promise.reject(err);
+    }
   }
 }
 

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, send_file, make_response
+from datetime import datetime
 import os
 import re
 from werkzeug.utils import secure_filename
@@ -122,6 +123,15 @@ def root():
 
 @app.route('/api/health', methods=['GET', 'OPTIONS'])
 def health_check():
+    try:
+        origin = request.headers.get('Origin')
+        remote = request.remote_addr
+        ua = request.headers.get('User-Agent')
+        ts = datetime.utcnow().isoformat() + 'Z'
+        print(f'Health check: time={ts}, remote_addr={remote}, origin={origin}, ua={ua}')
+        sys.stdout.flush()
+    except Exception:
+        pass
     return jsonify({
         'status': 'healthy',
         'version': '1.0.0',
