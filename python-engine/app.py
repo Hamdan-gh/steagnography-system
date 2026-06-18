@@ -1,38 +1,77 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
+import re
 from werkzeug.utils import secure_filename
 import traceback
 import sys
 
 from embed_audio import embed_audio_in_image
 from extract_audio import extract_audio_from_image
-from metrics import calculate_all_metrics
 from image_processing import analyze_image_capacity
 
 app = Flask(__name__)
 
-# Configure CORS to allow Vercel frontend
-CORS(app, resources={
-    r"/api/*": {
-        "origins": [
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "https://steagnography-system.vercel.app",
-            "https://*.vercel.app"
-        ],
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "expose_headers": ["Content-Type"],
-        "supports_credentials": True,
-        "max_age": 3600
-    }
-})
+# ---------------------------------------------------------------------------
+# CORS — allow Vercel frontend + local dev
+# Flask-CORS does NOT support wildcard strings like "https://*.vercel.app"
+# ---------------------------------------------------------------------------
+DEFAULT_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://steagnography-system.vercel.app',
+]
 
-# Force stdout to be unbuffered for real-time logging
-sys.stdout.reconfigure(line_buffering=True)
+VERCEL_ORIGIN_RE = re.compile(r'^https://[\w-]+\.vercel\.app$')
 
-# Configuration
+
+def _build_allowed_origins():
+    origins = list(DEFAULT_ORIGINS)
+    extra = os.environ.get('ALLOWED_ORIGINS', '')
+    for origin in extra.split(','):
+        origin = origin.strip()
+        if origin and origin not in origins:
+            origins.append(origin)
+    return origins
+
+
+def is_origin_allowed(origin: str | None) -> bool:
+    if not origin:
+        return True
+    if origin in _build_allowed_origins():
+        return True
+    if VERCEL_ORIGIN_RE.match(origin):
+        return True
+    return False
+
+
+CORS(
+    app,
+    resources={r'/*': {'origins': is_origin_allowed}},
+    methods=['GET', 'POST', 'OPTIONS'],
+    allow_headers=['Content-Type', 'Authorization'],
+    expose_headers=['Content-Type'],
+    supports_credentials=True,
+    max_age=3600,
+)
+
+
+@app.after_request
+def apply_cors_headers(response):
+    """Fallback CORS headers when upstream proxy strips them."""
+    origin = request.headers.get('Origin')
+    if origin and is_origin_allowed(origin):
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Vary'] = 'Origin'
+    return response
+
+
+try:
+    sys.stdout.reconfigure(line_buffering=True)
+except Exception:
+    pass
+
 UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'outputs'
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -43,62 +82,67 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # 200MB (increased to handle large files)
+app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_CONTENT_LENGTH', 200 * 1024 * 1024))
+
 
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-@app.route('/api/health', methods=['GET'])
+
+@app.route('/', methods=['GET'])
+def root():
+    return jsonify({
+        'service': 'StegaGen Processing Engine',
+        'status': 'running',
+        'health': '/api/health',
+    }), 200
+
+
+@app.route('/api/health', methods=['GET', 'OPTIONS'])
 def health_check():
-    """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
         'version': '1.0.0',
-        'service': 'StegaGen Processing Engine'
+        'service': 'StegaGen Processing Engine',
     }), 200
 
-@app.route('/api/analyze', methods=['POST'])
+
+@app.route('/api/analyze', methods=['POST', 'OPTIONS'])
 def analyze_capacity():
-    """Analyze cover image capacity"""
     try:
         if 'image' not in request.files:
             return jsonify({'error': 'No image file provided'}), 400
 
         image_file = request.files['image']
-        
+
         if image_file.filename == '':
             return jsonify({'error': 'Empty filename'}), 400
 
         if not allowed_file(image_file.filename, ALLOWED_IMAGE_EXTENSIONS):
             return jsonify({'error': 'Invalid image format'}), 400
 
-        # Save temporarily
         filename = secure_filename(image_file.filename)
         temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         image_file.save(temp_path)
 
-        # Analyze capacity
         result = analyze_image_capacity(temp_path)
-        
-        # Cleanup
         os.remove(temp_path)
 
         return jsonify(result), 200
 
     except Exception as e:
-        print(f"Error in analyze_capacity: {str(e)}")
+        print(f'Error in analyze_capacity: {str(e)}')
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/embed', methods=['POST'])
+
+@app.route('/api/embed', methods=['POST', 'OPTIONS'])
 def embed_audio():
-    """Embed audio into cover image"""
     try:
-        print("=" * 60)
-        print("STARTING EMBED REQUEST")
-        print("=" * 60)
-        
-        # Validate files
+        print('=' * 60)
+        print('STARTING EMBED REQUEST')
+        print('=' * 60)
+
         if 'cover_image' not in request.files or 'audio_file' not in request.files:
             return jsonify({'error': 'Missing required files'}), 400
 
@@ -109,83 +153,61 @@ def embed_audio():
         if not encryption_key:
             return jsonify({'error': 'Encryption key required'}), 400
 
-        # Fast LSB embedding — GA params kept for API compatibility
         ga_generations = int(request.form.get('ga_generations', 20))
         ga_population_size = int(request.form.get('ga_population_size', 15))
-        
-        print(f"Using fast LSB steganography (generations/population params ignored)")
 
-        # Validate filenames
+        print('Using fast LSB steganography')
+
         if cover_image.filename == '' or audio_file.filename == '':
             return jsonify({'error': 'Empty filename'}), 400
 
-        # Validate extensions
         if not allowed_file(cover_image.filename, ALLOWED_IMAGE_EXTENSIONS):
             return jsonify({'error': 'Invalid image format'}), 400
 
         if not allowed_file(audio_file.filename, ALLOWED_AUDIO_EXTENSIONS):
             return jsonify({'error': 'Invalid audio format'}), 400
 
-        # Save files
         cover_filename = secure_filename(cover_image.filename)
         audio_filename = secure_filename(audio_file.filename)
-        
+
         cover_path = os.path.join(app.config['UPLOAD_FOLDER'], cover_filename)
         audio_path = os.path.join(app.config['UPLOAD_FOLDER'], audio_filename)
-        
-        print(f"Saving files: {cover_filename}, {audio_filename}")
+
+        print(f'Saving files: {cover_filename}, {audio_filename}')
         cover_image.save(cover_path)
         audio_file.save(audio_path)
-        
-        # Check file sizes
-        cover_size = os.path.getsize(cover_path) / (1024 * 1024)  # MB
-        audio_size = os.path.getsize(audio_path) / (1024 * 1024)  # MB
-        print(f"File sizes: Image={cover_size:.2f}MB, Audio={audio_size:.2f}MB")
-        
-        print("Files saved successfully, starting embedding process...")
 
-        # Process embedding with timeout handling
-        import sys
-        sys.stdout.flush()  # Ensure all print statements are flushed
-        
+        cover_size = os.path.getsize(cover_path) / (1024 * 1024)
+        audio_size = os.path.getsize(audio_path) / (1024 * 1024)
+        print(f'File sizes: Image={cover_size:.2f}MB, Audio={audio_size:.2f}MB')
+
         result = embed_audio_in_image(
             cover_path,
             audio_path,
             encryption_key,
             ga_generations=ga_generations,
-            ga_population_size=ga_population_size
+            ga_population_size=ga_population_size,
         )
-        
-        print("Embedding completed successfully!")
 
-        # Cleanup input files
         try:
             os.remove(cover_path)
             os.remove(audio_path)
-            print("Cleaned up input files")
         except Exception as cleanup_error:
-            print(f"Warning: Could not cleanup files: {cleanup_error}")
+            print(f'Warning: Could not cleanup files: {cleanup_error}')
 
-        print("=" * 60)
-        print("EMBED REQUEST COMPLETED")
-        print("=" * 60)
-        
+        print('EMBED REQUEST COMPLETED')
         return jsonify(result), 200
 
     except Exception as e:
-        print(f"ERROR in embed_audio: {str(e)}")
+        print(f'ERROR in embed_audio: {str(e)}')
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/extract', methods=['POST'])
+
+@app.route('/api/extract', methods=['POST', 'OPTIONS'])
 def extract_audio():
-    """Extract audio from stego image"""
     stego_path = None
     try:
-        print("=" * 60)
-        print("STARTING EXTRACTION REQUEST")
-        print("=" * 60)
-        
         if 'stego_image' not in request.files:
             return jsonify({'error': 'No stego image provided'}), 400
 
@@ -201,63 +223,40 @@ def extract_audio():
         if not allowed_file(stego_image.filename, ALLOWED_IMAGE_EXTENSIONS):
             return jsonify({'error': 'Invalid image format. Please use PNG, JPG, or JPEG.'}), 400
 
-        # Save stego image
         stego_filename = secure_filename(stego_image.filename)
         stego_path = os.path.join(app.config['UPLOAD_FOLDER'], stego_filename)
-        
-        print(f"Saving uploaded image: {stego_filename}")
         stego_image.save(stego_path)
-        
-        file_size = os.path.getsize(stego_path) / (1024 * 1024)  # MB
-        print(f"File size: {file_size:.2f}MB")
-        print(f"Encryption key length: {len(encryption_key)} characters")
 
-        # Extract audio
-        print("Starting extraction process...")
         result = extract_audio_from_image(stego_path, encryption_key)
-        print("Extraction completed successfully!")
 
-        # Cleanup
         if stego_path and os.path.exists(stego_path):
             os.remove(stego_path)
-            print("Cleaned up uploaded file")
 
-        print("=" * 60)
-        print("EXTRACTION REQUEST COMPLETED")
-        print("=" * 60)
-        
         return jsonify(result), 200
 
     except ValueError as ve:
-        # Handle specific validation/decryption errors
         error_msg = str(ve)
-        print(f"Validation Error: {error_msg}")
-        
-        if "Invalid stego image" in error_msg or "No embedded audio found" in error_msg:
+        if 'Invalid stego image' in error_msg or 'No embedded audio found' in error_msg:
             return jsonify({'error': 'This image does not contain hidden audio or was not created by this tool.'}), 400
-        elif "Invalid encryption key" in error_msg or "Decryption failed" in error_msg:
+        if 'Invalid encryption key' in error_msg or 'Decryption failed' in error_msg:
             return jsonify({'error': 'Incorrect encryption key. Please use the same key used during embedding.'}), 400
-        elif "Corrupted" in error_msg:
+        if 'Corrupted' in error_msg:
             return jsonify({'error': 'The stego image appears to be corrupted or modified.'}), 400
-        else:
-            return jsonify({'error': error_msg}), 400
-            
+        return jsonify({'error': error_msg}), 400
+
     except Exception as e:
-        print(f"Error in extract_audio: {str(e)}")
+        print(f'Error in extract_audio: {str(e)}')
         print(traceback.format_exc())
-        
-        # Cleanup on error
         if stego_path and os.path.exists(stego_path):
             try:
                 os.remove(stego_path)
-            except:
+            except Exception:
                 pass
-                
         return jsonify({'error': f'Extraction failed: {str(e)}'}), 500
 
-@app.route('/api/download/<filename>', methods=['GET'])
+
+@app.route('/api/download/<filename>', methods=['GET', 'OPTIONS'])
 def download_file(filename):
-    """Download generated files"""
     try:
         file_path = os.path.join(app.config['OUTPUT_FOLDER'], filename)
         if os.path.exists(file_path):
@@ -266,9 +265,11 @@ def download_file(filename):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 if __name__ == '__main__':
-    print("=" * 60)
-    print("Starting StegaGen Processing Engine")
-    print("Server: http://localhost:5000")
-    print("=" * 60)
-    app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
+    port = int(os.environ.get('PORT', 5000))
+    print('=' * 60)
+    print('Starting StegaGen Processing Engine')
+    print(f'Server: http://0.0.0.0:{port}')
+    print('=' * 60)
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)

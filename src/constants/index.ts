@@ -3,8 +3,10 @@ export const APP_NAME = 'StegaGen Secure';
 export const APP_VERSION = '1.0.0';
 export const APP_DESCRIPTION = 'Audio Steganography with Genetic Algorithm Optimization';
 
-// API Endpoints
-export const API_BASE_URL = import.meta.env.VITE_PROCESSING_ENGINE_URL || 'http://localhost:5000';
+// API Endpoints — Render in production, localhost in dev
+export const API_BASE_URL =
+  import.meta.env.VITE_PROCESSING_ENGINE_URL ||
+  (import.meta.env.PROD ? 'https://stegagen-api.onrender.com' : 'http://localhost:5000');
 
 export const API_ENDPOINTS = {
   EMBED: '/api/embed',

@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { User, ExtractionResponse } from '@/types';
 import { extractionService } from '@/services/extraction.service';
 import { validateImageFile, validateEncryptionKey } from '@/utils/validators';
-import { FILE_CONSTRAINTS } from '@/constants';
+import { FILE_CONSTRAINTS, API_BASE_URL } from '@/constants';
 import { toast } from 'sonner';
 import { formatBytes } from '@/utils/formatters';
 
@@ -30,18 +30,16 @@ const ExtractPage: React.FC<ExtractPageProps> = ({ user: _user }) => {
   React.useEffect(() => {
     const checkBackend = async () => {
       try {
-        const backendUrl = import.meta.env?.VITE_PROCESSING_ENGINE_URL || 'http://localhost:5000';
-        const response = await fetch(`${backendUrl}/api/health`);
+        const response = await fetch(`${API_BASE_URL}/api/health`);
         if (response.ok) {
           setBackendOnline(true);
-          console.log('Backend is online');
         } else {
           setBackendOnline(false);
           toast.warning('Processing backend may not be running correctly');
         }
       } catch (error) {
         setBackendOnline(false);
-        toast.error('Cannot connect to processing backend. Please ensure Python server is running on port 5000.', { duration: 7000 });
+        toast.error('Cannot connect to processing backend. Check Render deployment status.', { duration: 7000 });
         console.error('Backend health check failed:', error);
       }
     };

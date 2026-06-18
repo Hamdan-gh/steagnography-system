@@ -2,8 +2,9 @@ services:
   - type: web
     name: stegagen-api
     env: python
+    rootDir: python-engine
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 300
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 600 --graceful-timeout 120 --log-level info
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -11,5 +12,7 @@ services:
         value: production
       - key: MAX_CONTENT_LENGTH
         value: 209715200
+      - key: ALLOWED_ORIGINS
+        value: https://steagnography-system.vercel.app
     healthCheckPath: /api/health
     plan: free
