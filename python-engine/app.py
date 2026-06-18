@@ -170,6 +170,8 @@ def analyze_capacity():
 
 @app.route('/api/embed', methods=['POST', 'OPTIONS'])
 def embed_audio():
+    cover_path = None
+    audio_path = None
     try:
         print('=' * 60)
         print('STARTING EMBED REQUEST')
@@ -189,10 +191,33 @@ def embed_audio():
         if not encryption_key:
             return jsonify({'error': 'Encryption key required'}), 400
 
-        ga_generations = int(request.form.get('ga_generations', 20))
-        ga_population_size = int(request.form.get('ga_population_size', 15))
+        # Validate file sizes before processing
+        cover_image.seek(0, os.SEEK_END)
+        cover_size = cover_image.tell() / (1024 * 1024)
+        cover_image.seek(0)
+        
+        audio_file.seek(0, os.SEEK_END)
+        audio_size = audio_file.tell() / (1024 * 1024)
+        audio_file.seek(0)
+        
+        print(f'File sizes: Image={cover_size:.2f}MB, Audio={audio_size:.2f}MB')
+        
+        # Validate size limits (2MB to 20MB for images)
+        if cover_size < 2 or cover_size > 20:
+            return jsonify({'error': f'Image size must be between 2MB and 20MB. Current size: {cover_size:.2f}MB'}), 400
+        
+        if audio_size > 20:
+            return jsonify({'error': f'Audio size must not exceed 20MB. Current size: {audio_size:.2f}MB'}), 400
 
-        print('Using fast LSB steganography')
+        # Optimize GA parameters based on file sizes for faster processing
+        if cover_size > 10:
+            ga_generations = int(request.form.get('ga_generations', 10))  # Reduced for large files
+            ga_population_size = int(request.form.get('ga_population_size', 10))
+        else:
+            ga_generations = int(request.form.get('ga_generations', 20))
+            ga_population_size = int(request.form.get('ga_population_size', 15))
+
+        print(f'Using GA params: generations={ga_generations}, population={ga_population_size}')
 
         if cover_image.filename == '' or audio_file.filename == '':
             return jsonify({'error': 'Empty filename'}), 400
@@ -216,11 +241,6 @@ def embed_audio():
         print(f'Files saved successfully')
         sys.stdout.flush()
 
-        cover_size = os.path.getsize(cover_path) / (1024 * 1024)
-        audio_size = os.path.getsize(audio_path) / (1024 * 1024)
-        print(f'File sizes: Image={cover_size:.2f}MB, Audio={audio_size:.2f}MB')
-        sys.stdout.flush()
-
         print('Calling embed_audio_in_image...')
         sys.stdout.flush()
         result = embed_audio_in_image(
@@ -233,9 +253,12 @@ def embed_audio():
         print('embed_audio_in_image completed successfully')
         sys.stdout.flush()
 
+        # Clean up uploaded files
         try:
-            os.remove(cover_path)
-            os.remove(audio_path)
+            if cover_path and os.path.exists(cover_path):
+                os.remove(cover_path)
+            if audio_path and os.path.exists(audio_path):
+                os.remove(audio_path)
         except Exception as cleanup_error:
             print(f'Warning: Could not cleanup files: {cleanup_error}')
 
@@ -249,6 +272,16 @@ def embed_audio():
         print(f'Error type: {type(e).__name__}')
         print(traceback.format_exc())
         sys.stdout.flush()
+        
+        # Cleanup on error
+        try:
+            if cover_path and os.path.exists(cover_path):
+                os.remove(cover_path)
+            if audio_path and os.path.exists(audio_path):
+                os.remove(audio_path)
+        except Exception:
+            pass
+            
         return jsonify({'error': str(e)}), 500
 
 

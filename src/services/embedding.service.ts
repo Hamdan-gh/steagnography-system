@@ -72,63 +72,126 @@ export class EmbeddingService {
   }
 
   async embedAudio(request: EmbeddingRequest, onProgress?: (progress: number) => void): Promise<EmbeddingResponse> {
+    // Validate file sizes before upload (2MB to 20MB for images)
+    const coverImageSizeMB = request.cover_image.size / (1024 * 1024);
+    const audioFileSizeMB = request.audio_file.size / (1024 * 1024);
+    
+    console.log(`File sizes - Image: ${coverImageSizeMB.toFixed(2)}MB, Audio: ${audioFileSizeMB.toFixed(2)}MB`);
+    
+    if (coverImageSizeMB < 2) {
+      throw new Error('Cover image must be at least 2MB in size for optimal embedding');
+    }
+    
+    if (coverImageSizeMB > 20) {
+      throw new Error(`Cover image is too large (${coverImageSizeMB.toFixed(2)}MB). Maximum size is 20MB`);
+    }
+    
+    if (audioFileSizeMB > 20) {
+      throw new Error(`Audio file is too large (${audioFileSizeMB.toFixed(2)}MB). Maximum size is 20MB`);
+    }
+    
     const formData = new FormData();
     formData.append('cover_image', request.cover_image);
     formData.append('audio_file', request.audio_file);
     formData.append('encryption_key', request.encryption_key);
     
-    if (request.ga_generations) {
-      formData.append('ga_generations', request.ga_generations.toString());
-    }
+    // Auto-optimize GA parameters for large files to speed up processing
+    const optimizedGenerations = coverImageSizeMB > 10 
+      ? Math.min(request.ga_generations || 10, 10) 
+      : (request.ga_generations || 20);
+    const optimizedPopulation = coverImageSizeMB > 10 
+      ? Math.min(request.ga_population_size || 10, 10) 
+      : (request.ga_population_size || 15);
     
-    if (request.ga_population_size) {
-      formData.append('ga_population_size', request.ga_population_size.toString());
+    formData.append('ga_generations', optimizedGenerations.toString());
+    formData.append('ga_population_size', optimizedPopulation.toString());
+    
+    if (coverImageSizeMB > 10) {
+      toast.info('Large file detected. Using optimized processing parameters for faster results.');
     }
 
-    // Call the processing engine via proxy first
+    // Always use direct backend for large files to avoid Vercel timeout
+    const directBackend = (import.meta as any).env?.VITE_PROCESSING_ENGINE_URL;
+    const useDirect = coverImageSizeMB > 5 || audioFileSizeMB > 5;
+    
     let response: EmbeddingResponse;
-    try {
-      response = await apiService.post<EmbeddingResponse>(API_ENDPOINTS.EMBED, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          if (onProgress && progressEvent.total) {
-            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            onProgress(progress);
-          }
-        },
-      });
-    } catch (err: any) {
-      console.warn('Primary embed POST failed, attempting direct backend fallback', err?.response?.status || err?.message);
-      const status = err?.response?.status;
-      const shouldFallback = [502, 504, 413].includes(status) || !err?.response;
-      const directBackend = (import.meta as any).env?.VITE_PROCESSING_ENGINE_URL;
-
-      if (shouldFallback && directBackend) {
-        try {
-          // Use axios directly to post to the backend URL (bypass Vercel proxy)
-          const axios = (await import('axios')).default;
-          const resp = await axios.post(`${directBackend}${API_ENDPOINTS.EMBED}`, formData, {
-            headers: {
-              // Let browser/axios set the multipart boundary
-            },
-            timeout: 15 * 60 * 1000, // 15 minutes for long processing
-            onUploadProgress: (progressEvent: any) => {
-              if (onProgress && progressEvent.total) {
-                const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                onProgress(progress);
-              }
-            },
-          });
-          toast(`Upload routed directly to backend`);
-          response = resp.data as EmbeddingResponse;
-        } catch (err2: any) {
-          console.error('Direct backend fallback also failed', err2);
-          throw err2;
+    
+    if (useDirect && directBackend) {
+      console.log('Using direct backend connection for large files');
+      try {
+        const axios = (await import('axios')).default;
+        const resp = await axios.post(`${directBackend}${API_ENDPOINTS.EMBED}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 15 * 60 * 1000, // 15 minutes for large file processing
+          onUploadProgress: (progressEvent: any) => {
+            if (onProgress && progressEvent.total) {
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              onProgress(progress);
+            }
+          },
+        });
+        response = resp.data as EmbeddingResponse;
+      } catch (err: any) {
+        console.error('Embedding error:', err);
+        if (err.code === 'ECONNABORTED') {
+          throw new Error('Processing timeout. The backend service may need more resources for this file size.');
+        } else if (err.response?.status === 502) {
+          throw new Error('Backend service temporarily unavailable (502). Please wait a moment and try again.');
+        } else if (err.response?.status === 504) {
+          throw new Error('Processing timeout (504). Try with a smaller file or reduced GA parameters.');
         }
-      } else {
         throw err;
+      }
+    } else {
+      // Use Vercel proxy for smaller files
+      try {
+        response = await apiService.post<EmbeddingResponse>(API_ENDPOINTS.EMBED, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 5 * 60 * 1000, // 5 minutes timeout
+          onUploadProgress: (progressEvent) => {
+            if (onProgress && progressEvent.total) {
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              onProgress(progress);
+            }
+          },
+        });
+      } catch (err: any) {
+        console.warn('Primary embed POST failed, attempting direct backend fallback', err?.response?.status || err?.message);
+        const status = err?.response?.status;
+        const shouldFallback = [502, 504, 413, 408].includes(status) || !err?.response;
+
+        if (shouldFallback && directBackend) {
+          try {
+            toast.info('Retrying with direct connection...');
+            const axios = (await import('axios')).default;
+            const resp = await axios.post(`${directBackend}${API_ENDPOINTS.EMBED}`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+              timeout: 15 * 60 * 1000, // 15 minutes for retry
+              onUploadProgress: (progressEvent: any) => {
+                if (onProgress && progressEvent.total) {
+                  const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                  onProgress(progress);
+                }
+              },
+            });
+            toast.success('Connected directly to backend');
+            response = resp.data as EmbeddingResponse;
+          } catch (err2: any) {
+            console.error('Direct backend fallback also failed', err2);
+            if (err2.code === 'ECONNABORTED') {
+              throw new Error('Processing timeout. The file may be too large or the service is under heavy load.');
+            }
+            throw err2;
+          }
+        } else {
+          throw err;
+        }
       }
     }
 

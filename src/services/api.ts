@@ -7,7 +7,7 @@ class APIService {
   constructor() {
     this.client = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 600000, // 10 minutes for processing (increased from 5)
+      timeout: 900000, // 15 minutes for large file processing (increased from 10)
       headers: {
         'Content-Type': 'application/json',
       },
