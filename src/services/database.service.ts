@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { TABLES } from '@/constants';
-import { StegoImage, ExtractionLog, AuditLog, DashboardStats } from '@/types';
+import { StegoImage, ExtractionLog, AuditLog, DashboardStats, User } from '@/types';
 
 export class DatabaseService {
   async ensureUserProfile(userId: string, email: string, fullName?: string | null): Promise<void> {
@@ -38,7 +38,7 @@ export class DatabaseService {
     return data;
   }
 
-  async getOperationHistory(userId: string, limit: number = 50): Promise<{
+  async getOperationHistoryData(userId: string, limit: number = 50): Promise<{
     embeddings: StegoImage[];
     extractions: ExtractionLog[];
     errors: string[];
