@@ -105,7 +105,7 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_CONTENT_LENGTH', 200 * 1024 * 1024))
+app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_CONTENT_LENGTH', 500 * 1024 * 1024))  # 500MB default
 
 
 def allowed_file(filename, allowed_extensions):
@@ -191,7 +191,7 @@ def embed_audio():
         if not encryption_key:
             return jsonify({'error': 'Encryption key required'}), 400
 
-        # Validate file sizes before processing
+        # Get file sizes for logging and optimization
         cover_image.seek(0, os.SEEK_END)
         cover_size = cover_image.tell() / (1024 * 1024)
         cover_image.seek(0)
@@ -201,13 +201,6 @@ def embed_audio():
         audio_file.seek(0)
         
         print(f'File sizes: Image={cover_size:.2f}MB, Audio={audio_size:.2f}MB')
-        
-        # Validate size limits (2MB to 20MB for images)
-        if cover_size < 2 or cover_size > 20:
-            return jsonify({'error': f'Image size must be between 2MB and 20MB. Current size: {cover_size:.2f}MB'}), 400
-        
-        if audio_size > 20:
-            return jsonify({'error': f'Audio size must not exceed 20MB. Current size: {audio_size:.2f}MB'}), 400
 
         # Optimize GA parameters based on file sizes for faster processing
         if cover_size > 10:

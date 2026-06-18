@@ -72,23 +72,11 @@ export class EmbeddingService {
   }
 
   async embedAudio(request: EmbeddingRequest, onProgress?: (progress: number) => void): Promise<EmbeddingResponse> {
-    // Validate file sizes before upload (2MB to 20MB for images)
+    // Log file sizes for monitoring
     const coverImageSizeMB = request.cover_image.size / (1024 * 1024);
     const audioFileSizeMB = request.audio_file.size / (1024 * 1024);
     
     console.log(`File sizes - Image: ${coverImageSizeMB.toFixed(2)}MB, Audio: ${audioFileSizeMB.toFixed(2)}MB`);
-    
-    if (coverImageSizeMB < 2) {
-      throw new Error('Cover image must be at least 2MB in size for optimal embedding');
-    }
-    
-    if (coverImageSizeMB > 20) {
-      throw new Error(`Cover image is too large (${coverImageSizeMB.toFixed(2)}MB). Maximum size is 20MB`);
-    }
-    
-    if (audioFileSizeMB > 20) {
-      throw new Error(`Audio file is too large (${audioFileSizeMB.toFixed(2)}MB). Maximum size is 20MB`);
-    }
     
     const formData = new FormData();
     formData.append('cover_image', request.cover_image);
