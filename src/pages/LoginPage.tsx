@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,6 @@ import { validateEmail } from '@/utils/validators';
 import { APP_NAME } from '@/constants';
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,14 +41,14 @@ const LoginPage: React.FC = () => {
 
       if (data.user) {
         toast.success('Login successful!');
-        // Navigate directly to dashboard
-        navigate('/dashboard', { replace: true });
+        // Don't navigate here - let the auth state change in App.tsx handle it
+        // The user state will update and React Router will automatically redirect to dashboard
       }
     } catch (error: any) {
       toast.error(error.message || 'Login failed');
-    } finally {
       setLoading(false);
     }
+    // Note: Don't set loading to false on success - let the redirect happen while loading
   };
 
   return (

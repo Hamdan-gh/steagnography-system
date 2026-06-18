@@ -24,6 +24,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -37,6 +38,7 @@ function App() {
         fetchUserProfile(session.user.id);
       } else {
         setLoading(false);
+        setAuthChecked(true);
       }
     });
 
@@ -51,6 +53,7 @@ function App() {
       } else {
         setUser(null);
         setLoading(false);
+        setAuthChecked(true);
       }
     });
 
@@ -129,6 +132,7 @@ function App() {
       }
     } finally {
       setLoading(false);
+      setAuthChecked(true);
     }
   };
 
@@ -160,11 +164,11 @@ function App() {
           {/* Public Routes */}
           <Route
             path="/login"
-            element={user ? <Navigate to="/dashboard" /> : <LoginPage />}
+            element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />}
           />
           <Route
             path="/signup"
-            element={user ? <Navigate to="/dashboard" /> : <SignupPage />}
+            element={user ? <Navigate to="/dashboard" replace /> : <SignupPage />}
           />
 
           {/* Protected Routes */}
