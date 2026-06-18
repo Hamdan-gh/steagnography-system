@@ -22,7 +22,7 @@ export const validatePassword = (password: string): { valid: boolean; message?: 
 };
 
 export const validateImageFile = (file: File): { valid: boolean; message?: string } => {
-  if (!FILE_CONSTRAINTS.SUPPORTED_IMAGE_FORMATS.includes(file.type)) {
+  if (!FILE_CONSTRAINTS.SUPPORTED_IMAGE_FORMATS.includes(file.type as any)) {
     return {
       valid: false,
       message: `Unsupported image format. Supported: ${FILE_CONSTRAINTS.SUPPORTED_IMAGE_FORMATS.join(', ')}`,
@@ -40,7 +40,7 @@ export const validateImageFile = (file: File): { valid: boolean; message?: strin
 };
 
 export const validateAvatarFile = (file: File): { valid: boolean; message?: string } => {
-  if (!FILE_CONSTRAINTS.SUPPORTED_IMAGE_FORMATS.includes(file.type)) {
+  if (!FILE_CONSTRAINTS.SUPPORTED_IMAGE_FORMATS.includes(file.type as any)) {
     return {
       valid: false,
       message: 'Avatar must be PNG or JPEG',
@@ -58,7 +58,7 @@ export const validateAvatarFile = (file: File): { valid: boolean; message?: stri
 };
 
 export const validateAudioFile = (file: File): { valid: boolean; message?: string } => {
-  if (!FILE_CONSTRAINTS.SUPPORTED_AUDIO_FORMATS.includes(file.type)) {
+  if (!FILE_CONSTRAINTS.SUPPORTED_AUDIO_FORMATS.includes(file.type as any)) {
     return {
       valid: false,
       message: `Unsupported audio format. Supported: ${FILE_CONSTRAINTS.SUPPORTED_AUDIO_FORMATS.join(', ')}`,

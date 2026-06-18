@@ -76,6 +76,8 @@ export const ROUTES = {
   SETTINGS: '/settings',
 } as const;
 
+export type RoutePath = typeof ROUTES[keyof typeof ROUTES];
+
 // User Roles
 export const USER_ROLES = {
   USER: 'user',

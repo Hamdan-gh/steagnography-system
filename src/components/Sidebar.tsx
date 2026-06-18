@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { ROUTES, APP_NAME } from '@/constants';
+import { ROUTES, APP_NAME, type RoutePath } from '@/constants';
 import { Button } from './ui/button';
 
 interface SidebarProps {
@@ -22,11 +22,17 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
+interface NavItem {
+  icon: React.ElementType;
+  label: string;
+  path: RoutePath;
+}
+
 export const Sidebar: React.FC<SidebarProps> = ({ userRole = 'user', onLogout }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { icon: LayoutDashboard, label: 'Dashboard', path: ROUTES.DASHBOARD },
     { icon: Upload, label: 'Embed Audio', path: ROUTES.EMBED },
     { icon: Download, label: 'Extract Audio', path: ROUTES.EXTRACT },

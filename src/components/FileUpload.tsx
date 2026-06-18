@@ -67,7 +67,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className="w-full">
       {!currentFile ? (
-        <motion.div
+        <div
           {...getRootProps()}
           className={cn(
             'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all',
@@ -75,8 +75,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               ? 'border-primary bg-primary/10'
               : 'border-gray-300 dark:border-gray-600 hover:border-primary'
           )}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <input {...getInputProps()} />
           <Icon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
@@ -89,7 +87,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           <p className="text-xs text-gray-400 mt-2">
             Supported formats: {acceptedTypes.map(t => t.split('/')[1]).join(', ')}
           </p>
-        </motion.div>
+        </div>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
