@@ -25,12 +25,13 @@ def save_image(image_array, output_path):
     return output_path
 
 def analyze_image_capacity(image_path):
-    """Analyze cover image and return capacity information"""
+    """Analyze cover image and return capacity information (using 2-bit LSB)"""
     img = load_image(image_path)
     height, width, channels = img.shape
     
-    # Calculate capacity (1 bit per channel)
-    total_bits = height * width * channels
+    # Calculate capacity (2 bits per channel for 4x capacity)
+    BITS_PER_CHANNEL = 2
+    total_bits = height * width * channels * BITS_PER_CHANNEL
     total_bytes = total_bits // 8
     
     # Reserve bytes for payload header (magic + size + nonce + tag)
@@ -43,7 +44,8 @@ def analyze_image_capacity(image_path):
             'height': int(height),
             'channels': int(channels)
         },
-        'total_pixels': int(height * width)
+        'total_pixels': int(height * width),
+        'bits_per_channel': BITS_PER_CHANNEL
     }
 
 def validate_image_dimensions(image_path, min_width=512, min_height=512):

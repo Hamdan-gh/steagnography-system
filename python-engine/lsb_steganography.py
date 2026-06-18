@@ -1,13 +1,13 @@
 """
-Fast vectorized LSB steganography.
-Embeds data sequentially from the first pixel — no external metadata required.
-Only the least significant bit of each color channel is modified (±1 max),
-preserving the visual appearance of the cover image.
+Fast vectorized LSB steganography with 2-bit embedding.
+Embeds data sequentially using 2 least significant bits per channel (4x capacity).
+Only the 2 LSBs are modified (max ±3 change), preserving visual quality.
 """
 import numpy as np
 
 MAGIC = b'STGA'
 HEADER_SIZE = 40  # 4 magic + 4 size + 16 nonce + 16 tag
+BITS_PER_CHANNEL = 2  # Use 2 LSBs for 4x capacity
 
 
 def build_payload(encrypted_data: bytes, nonce: bytes, tag: bytes) -> bytes:
@@ -17,32 +17,59 @@ def build_payload(encrypted_data: bytes, nonce: bytes, tag: bytes) -> bytes:
 
 
 def embed_bits_lsb(image: np.ndarray, data_bits: np.ndarray) -> np.ndarray:
-    """Embed bits into image LSBs using vectorized numpy operations."""
+    """Embed bits into image using 2 LSBs per channel (vectorized)."""
     stego = image.copy()
     flat = stego.reshape(-1)
     n_bits = len(data_bits)
-
-    if n_bits > len(flat):
+    
+    # Calculate how many channels we need (2 bits per channel)
+    n_channels_needed = (n_bits + 1) // 2  # Round up
+    
+    if n_channels_needed > len(flat):
         raise ValueError(
-            f"Not enough capacity: need {n_bits} bits, image has {len(flat)}"
+            f"Not enough capacity: need {n_channels_needed} channels "
+            f"for {n_bits} bits, image has {len(flat)} channels"
         )
-
-    flat[:n_bits] = (flat[:n_bits] & 0xFE) | data_bits.astype(np.uint8)
+    
+    # Pad data_bits to even length if necessary
+    if n_bits % 2 == 1:
+        data_bits = np.append(data_bits, 0)
+    
+    # Reshape data into pairs of bits
+    data_pairs = data_bits.reshape(-1, 2)
+    
+    # Convert pairs to 2-bit values (0-3)
+    data_values = (data_pairs[:, 0] << 1) | data_pairs[:, 1]
+    
+    # Clear 2 LSBs and embed new values
+    flat[:len(data_values)] = (flat[:len(data_values)] & 0xFC) | data_values.astype(np.uint8)
+    
     return stego
 
 
 def embed_payload(image: np.ndarray, payload: bytes) -> np.ndarray:
-    """Embed byte payload into image using sequential LSB."""
+    """Embed byte payload into image using 2-bit LSB."""
     bits = np.unpackbits(np.frombuffer(payload, dtype=np.uint8))
     return embed_bits_lsb(image, bits)
 
 
 def extract_bits_lsb(image: np.ndarray, num_bits: int) -> np.ndarray:
-    """Extract num_bits LSBs from image sequentially."""
+    """Extract num_bits from image using 2 LSBs per channel."""
     flat = image.reshape(-1)
-    if num_bits > len(flat):
+    n_channels_needed = (num_bits + 1) // 2
+    
+    if n_channels_needed > len(flat):
         raise ValueError("Image does not contain enough data")
-    return (flat[:num_bits] & 1).astype(np.uint8)
+    
+    # Extract 2-bit values from each channel
+    values = flat[:n_channels_needed] & 0x03  # Get 2 LSBs
+    
+    # Convert to individual bits
+    bits = np.zeros(n_channels_needed * 2, dtype=np.uint8)
+    bits[::2] = (values >> 1) & 1  # High bit
+    bits[1::2] = values & 1         # Low bit
+    
+    return bits[:num_bits]
 
 
 def bits_to_bytes(bits: np.ndarray) -> bytes:
@@ -73,7 +100,8 @@ def extract_payload(image: np.ndarray) -> bytes:
     total_bytes = HEADER_SIZE + encrypted_size
     total_bits = total_bytes * 8
 
-    max_bits = image.size
+    # With 2 bits per channel, we can store 2 bits per channel
+    max_bits = image.size * BITS_PER_CHANNEL
     if total_bits > max_bits or encrypted_size <= 0:
         raise ValueError("Corrupted stego image: invalid payload size")
 
