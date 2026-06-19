@@ -1,7 +1,10 @@
 import nodemailer from 'nodemailer';
 
 const APP_NAME = process.env.APP_NAME || 'StegaGen Secure';
-const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').split(',')[0].trim();
+const FRONTEND_URL = (
+  process.env.FRONTEND_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+).split(',')[0].trim();
 const REPLY_TO = process.env.EMAIL_REPLY_TO || process.env.EMAIL_USER;
 
 function buildFromAddress() {

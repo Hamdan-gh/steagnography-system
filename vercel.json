@@ -2,11 +2,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "functions": {
+    "api/auth/*.js": {
+      "maxDuration": 30,
+      "includeFiles": "server/**"
+    }
+  },
   "rewrites": [
-    {
-      "source": "/api/auth/:path*",
-      "destination": "https://stegagen-auth-server.onrender.com/api/auth/:path*"
-    },
     {
       "source": "/api/:path*",
       "destination": "https://stegagen-api.onrender.com/api/:path*"
