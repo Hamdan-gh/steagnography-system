@@ -105,7 +105,17 @@ export function createAuthApp() {
   });
 
   app.get('/api/auth/health', (_req, res) => {
-    res.json({ status: 'ok', message: 'Auth API is running' });
+    res.json({ 
+      status: 'ok', 
+      message: 'Auth API is running',
+      config: {
+        hasSupabaseUrl: !!supabaseUrl,
+        hasSupabaseKey: !!supabaseServiceKey,
+        hasEmailHost: !!process.env.EMAIL_HOST,
+        hasEmailUser: !!process.env.EMAIL_USER,
+        hasEmailPassword: !!process.env.EMAIL_PASSWORD,
+      }
+    });
   });
 
   app.post('/api/auth/register', async (req, res) => {
