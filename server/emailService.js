@@ -31,7 +31,12 @@ export function createEmailTransporter() {
     socketTimeout: 15000,
     tls: {
       minVersion: 'TLSv1.2',
+      rejectUnauthorized: true,
     },
+    // Anti-spam improvements
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 10,
   });
 }
 
@@ -46,22 +51,23 @@ function escapeHtml(value) {
 export function buildVerificationEmail({ fullName, code, email, minutes = 10 }) {
   const safeName = escapeHtml(fullName);
   const verifyUrl = `${FRONTEND_URL}/verify-email?email=${encodeURIComponent(email)}`;
-  const subject = `${APP_NAME} — your verification code`;
+  const subject = `Verify your ${APP_NAME} account`;
 
   const text = [
     `Hello ${fullName},`,
     '',
-    `Use this code to verify your ${APP_NAME} account:`,
+    `Thank you for signing up with ${APP_NAME}.`,
     '',
-    code,
+    `Your verification code is: ${code}`,
     '',
-    `This code expires in ${minutes} minutes.`,
+    `This code will expire in ${minutes} minutes.`,
     '',
-    `Open the verification page: ${verifyUrl}`,
+    `To verify your account, visit: ${verifyUrl}`,
     '',
-    'If you did not request this, you can safely ignore this email.',
+    'If you did not request this verification, please ignore this email.',
     '',
-    APP_NAME,
+    'Best regards,',
+    `The ${APP_NAME} Team`,
   ].join('\n');
 
   const html = `<!DOCTYPE html>
@@ -69,82 +75,79 @@ export function buildVerificationEmail({ fullName, code, email, minutes = 10 }) 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no">
   <title>${escapeHtml(subject)}</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
+  </style>
+  <![endif]-->
 </head>
-<body style="margin:0;padding:0;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:transparent;padding:40px 20px;min-height:100vh;">
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f3f4f6;padding:40px 20px;">
     <tr>
-      <td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden;">
+      <td align="center" style="padding:0;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background-color:#ffffff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
           
-          <!-- Header with gradient -->
+          <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);padding:40px 40px 50px 40px;text-align:center;">
-              <div style="display:inline-block;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);padding:12px 24px;border-radius:8px;margin-bottom:20px;">
-                <p style="margin:0;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:0.5px;">${APP_NAME}</p>
-              </div>
-              <h1 style="margin:0;font-size:28px;font-weight:600;color:#ffffff;line-height:1.3;">Verify Your Email</h1>
-              <p style="margin:12px 0 0 0;font-size:16px;color:rgba(255,255,255,0.9);line-height:1.5;">We're excited to have you on board!</p>
+            <td style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);padding:32px 24px;text-align:center;border-radius:8px 8px 0 0;">
+              <h1 style="margin:0;font-size:24px;font-weight:600;color:#ffffff;line-height:1.3;">Verify Your Email Address</h1>
             </td>
           </tr>
 
-          <!-- Main content -->
+          <!-- Content -->
           <tr>
-            <td style="padding:40px 40px 20px 40px;">
-              <p style="margin:0;font-size:16px;line-height:1.7;color:#374151;">Hi <strong style="color:#111827;">${safeName}</strong>,</p>
-              <p style="margin:20px 0 0 0;font-size:16px;line-height:1.7;color:#374151;">
-                Thank you for signing up! To complete your registration, please use the verification code below:
+            <td style="padding:32px 24px;">
+              <p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#374151;">Hello <strong style="color:#111827;">${safeName}</strong>,</p>
+              <p style="margin:0 0 24px 0;font-size:16px;line-height:1.6;color:#374151;">
+                Thank you for signing up with ${APP_NAME}. To complete your registration and verify your email address, please use the verification code below:
               </p>
-            </td>
-          </tr>
-
-          <!-- Verification code box -->
-          <tr>
-            <td align="center" style="padding:20px 40px;">
-              <table role="presentation" cellspacing="0" cellpadding="0" style="background:linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);border:2px dashed #667eea;border-radius:12px;padding:24px 32px;">
+              
+              <!-- Code Box -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td align="center">
-                    <p style="margin:0 0 8px 0;font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#667eea;font-weight:600;">Your Verification Code</p>
-                    <p style="margin:0;font-size:42px;font-weight:800;letter-spacing:8px;font-family:'Courier New',Consolas,Monaco,monospace;color:#111827;text-shadow:2px 2px 4px rgba(0,0,0,0.1);">${code}</p>
+                  <td align="center" style="padding:0 0 24px 0;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="background-color:#f9fafb;border:2px solid #667eea;border-radius:8px;padding:20px;">
+                      <tr>
+                        <td align="center">
+                          <p style="margin:0 0 8px 0;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#6b7280;font-weight:600;">Verification Code</p>
+                          <p style="margin:0;font-size:32px;font-weight:700;letter-spacing:6px;font-family:Consolas,Monaco,monospace;color:#111827;">${code}</p>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
-              <div style="margin-top:16px;padding:12px 20px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:6px;">
-                <p style="margin:0;font-size:14px;color:#92400e;">
-                  ⏱️ This code will expire in <strong>${minutes} minutes</strong>
-                </p>
-              </div>
-            </td>
-          </tr>
 
-          <!-- Button -->
-          <tr>
-            <td align="center" style="padding:20px 40px;">
-              <a href="${verifyUrl}" style="display:inline-block;padding:16px 48px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:600;box-shadow:0 4px 15px rgba(102,126,234,0.4);transition:all 0.3s ease;">
-                Verify Email Address
-              </a>
-            </td>
-          </tr>
+              <p style="margin:0 0 24px 0;font-size:14px;line-height:1.6;color:#6b7280;text-align:center;">
+                This code will expire in <strong>${minutes} minutes</strong>
+              </p>
 
-          <!-- Security notice -->
-          <tr>
-            <td style="padding:20px 40px 40px 40px;">
-              <div style="background:#f3f4f6;border-radius:8px;padding:20px;border-left:4px solid #6b7280;">
-                <p style="margin:0;font-size:14px;line-height:1.6;color:#4b5563;">
-                  🔒 <strong style="color:#1f2937;">Security Notice:</strong><br>
-                  If you didn't create an account with ${APP_NAME}, please ignore this email. Your security is important to us.
-                </p>
-              </div>
+              <!-- Button -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td align="center" style="padding:0 0 24px 0;">
+                    <a href="${verifyUrl}" style="display:inline-block;padding:14px 32px;background-color:#667eea;color:#ffffff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:600;">Verify Email Address</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
+                If you did not create an account with ${APP_NAME}, please ignore this email. No further action is required.
+              </p>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="background:#f9fafb;padding:30px 40px;border-top:1px solid #e5e7eb;">
-              <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;text-align:center;">
-                Need help? Contact our support team
+            <td style="background-color:#f9fafb;padding:24px;text-align:center;border-top:1px solid #e5e7eb;border-radius:0 0 8px 8px;">
+              <p style="margin:0 0 8px 0;font-size:14px;color:#6b7280;">
+                Best regards,<br>The ${APP_NAME} Team
               </p>
-              <p style="margin:12px 0 0 0;font-size:12px;color:#9ca3af;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;">
                 © ${new Date().getFullYear()} ${APP_NAME}. All rights reserved.
               </p>
             </td>
@@ -152,12 +155,12 @@ export function buildVerificationEmail({ fullName, code, email, minutes = 10 }) 
 
         </table>
 
-        <!-- Email client compatibility spacer -->
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;">
+        <!-- Footer text -->
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;">
           <tr>
-            <td style="padding:20px 0;">
-              <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.7);text-align:center;">
-                This is an automated message, please do not reply to this email.
+            <td style="padding:16px 0 0 0;">
+              <p style="margin:0;font-size:12px;color:#6b7280;text-align:center;">
+                This is an automated email. Please do not reply directly to this message.
               </p>
             </td>
           </tr>
@@ -176,13 +179,14 @@ export function buildResendVerificationEmail({ fullName, code, email, minutes = 
   const base = buildVerificationEmail({ fullName, code, email, minutes });
   return {
     ...base,
-    subject: `${APP_NAME} — new verification code`,
+    subject: `Your new ${APP_NAME} verification code`,
   };
 }
 
 export async function sendVerificationEmail(transporter, { to, fullName, code, email, isResend = false }) {
   const template = buildEmailTemplate({ fullName, code, email, isResend });
-  const messageId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@${process.env.EMAIL_DOMAIN || 'stegagen.local'}>`;
+  const messageId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@${process.env.EMAIL_DOMAIN || 'stegagen.app'}>`;
+  const domain = process.env.EMAIL_DOMAIN || (process.env.EMAIL_USER ? process.env.EMAIL_USER.split('@')[1] : 'stegagen.app');
 
   await transporter.sendMail({
     from: buildFromAddress(),
@@ -196,6 +200,16 @@ export async function sendVerificationEmail(transporter, { to, fullName, code, e
       'X-Entity-Ref-ID': email,
       'Auto-Submitted': 'auto-generated',
       'X-Auto-Response-Suppress': 'All',
+      'Precedence': 'bulk',
+      'X-Mailer': `${APP_NAME} Auth System`,
+      'List-Unsubscribe': `<mailto:${REPLY_TO}?subject=unsubscribe>`,
+      'MIME-Version': '1.0',
+      'Content-Type': 'multipart/alternative',
+    },
+    priority: 'high',
+    envelope: {
+      from: process.env.EMAIL_USER,
+      to: to,
     },
   });
 }
