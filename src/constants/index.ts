@@ -3,6 +3,11 @@ export const APP_NAME = 'StegaGen Secure';
 export const APP_VERSION = '1.0.0';
 export const APP_DESCRIPTION = 'Audio Steganography with Genetic Algorithm Optimization';
 
+// Production: same-origin /api/auth via Vercel proxy (see vercel.json).
+export const AUTH_SERVER_URL =
+  import.meta.env.VITE_AUTH_SERVER_URL ||
+  (import.meta.env.PROD ? '' : 'http://localhost:3001');
+
 // Production: use same-origin /api via Vercel proxy (no CORS issues).
 // Override with VITE_PROCESSING_ENGINE_URL to call Render directly if needed.
 export const API_BASE_URL =

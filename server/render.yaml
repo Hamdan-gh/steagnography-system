@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: stegagen-auth-server
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: FRONTEND_URL
+        value: https://steagnography-system.vercel.app
+      - key: APP_NAME
+        value: StegaGen Secure
+      - key: VERIFICATION_CODE_SECRET
+        sync: false
+      - key: VERIFICATION_CODE_LENGTH
+        value: 6
+      - key: VERIFICATION_CODE_EXPIRY
+        value: 600000

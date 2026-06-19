@@ -1,20 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, ArrowRight, RefreshCw, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { APP_NAME } from '@/constants';
+import { APP_NAME, AUTH_SERVER_URL } from '@/constants';
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_AUTH_SERVER_URL || 'http://localhost:3001';
 
 const VerifyEmailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email || '';
+  const [searchParams] = useSearchParams();
+  const email = location.state?.email || searchParams.get('email') || '';
   
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
@@ -84,7 +83,7 @@ const VerifyEmailPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/api/auth/verify-email`, {
+      const response = await axios.post(`${AUTH_SERVER_URL}/api/auth/verify-email`, {
         email,
         code: verificationCode
       });
@@ -122,7 +121,7 @@ const VerifyEmailPage: React.FC = () => {
     setResending(true);
     
     try {
-      const response = await axios.post(`${API_URL}/api/auth/resend-code`, {
+      const response = await axios.post(`${AUTH_SERVER_URL}/api/auth/resend-code`, {
         email
       });
 
@@ -285,9 +284,12 @@ const VerifyEmailPage: React.FC = () => {
           </CardFooter>
         </Card>
 
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800/50">
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800/50 space-y-2">
           <p className="text-xs text-center text-gray-600 dark:text-gray-400">
-            <strong>💡 Tip:</strong> Check your spam folder if you don't see the email within a few minutes.
+            <strong>Did not get the email?</strong> Check your spam or promotions folder and mark it as &quot;Not spam&quot; so future codes arrive in your inbox.
+          </p>
+          <p className="text-xs text-center text-gray-500 dark:text-gray-500">
+            The message subject is <strong>StegaGen Secure — your verification code</strong>.
           </p>
         </div>
       </motion.div>

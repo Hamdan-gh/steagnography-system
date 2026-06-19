@@ -1,0 +1,139 @@
+====================================
+    DEPLOYMENT QUICK REFERENCE
+====================================
+
+📋 STEP-BY-STEP DEPLOYMENT
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 1: DEPLOY AUTH SERVER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Create GitHub repo for server:
+   cd server
+   git init
+   git add .
+   git commit -m "Auth server"
+   
+2. Push to GitHub:
+   (Create new repo on github.com first)
+   git remote add origin https://github.com/USERNAME/stegagen-auth.git
+   git push -u origin main
+
+3. Deploy on Render.com:
+   - Go to render.com
+   - New + → Web Service
+   - Connect GitHub repo
+   - Build: npm install
+   - Start: npm start
+   - Plan: Free
+
+4. Add Environment Variables on Render:
+   NODE_ENV=production
+   PORT=3001
+   SUPABASE_URL=https://uwvsisaovryftdrauxdp.supabase.co
+   SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3dnNpc2FvdnJ5ZnRkcmF1eGRwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTYwNjk4MiwiZXhwIjoyMDk3MTgyOTgyfQ.xsr4SCoYcJ1Qu3jPH7aXbRm0QR1P4xu2i0zs7qjNzvw
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USER=gangduhamd@gmail.com
+   EMAIL_PASSWORD=mefyemddmbnkxxpi
+   EMAIL_FROM=StegaGen Secure <gangduhamd@gmail.com>
+   FRONTEND_URL=https://your-frontend.vercel.app
+   VERIFICATION_CODE_LENGTH=6
+   VERIFICATION_CODE_EXPIRY=600000
+
+5. Copy your Render URL:
+   https://stegagen-auth.onrender.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 2: UPDATE & DEPLOY FRONTEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Update .env.production:
+   Add this line:
+   VITE_AUTH_SERVER_URL=https://stegagen-auth.onrender.com
+
+2. Push changes:
+   git add .
+   git commit -m "Add auth server URL"
+   git push
+
+3. Deploy on Vercel:
+   - Go to vercel.com
+   - Import GitHub repo
+   - Add environment variables from .env.production
+   - Deploy
+
+4. Copy your Vercel URL:
+   https://your-app.vercel.app
+
+5. Update FRONTEND_URL on Render:
+   - Go to render.com → your auth service
+   - Environment → Edit FRONTEND_URL
+   - Set to: https://your-app.vercel.app
+   - Save (auto-redeploys)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 3: TEST EVERYTHING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Test auth server:
+   curl https://stegagen-auth.onrender.com/health
+   Should return: {"status":"ok"}
+
+2. Test signup:
+   - Go to your Vercel URL
+   - Click Sign Up
+   - Fill form with real email
+   - Submit
+
+3. Test email:
+   - Check your email
+   - Should receive verification code
+
+4. Test verification:
+   - Enter 6-digit code
+   - Should redirect to login
+
+5. Test login:
+   - Login with your credentials
+   - Should go to dashboard
+
+✅ DONE!
+
+====================================
+        DEPLOYMENT URLS
+====================================
+
+Auth Server:  https://stegagen-auth.onrender.com
+Frontend:     https://your-app.vercel.app
+Database:     https://uwvsisaovryftdrauxdp.supabase.co
+
+====================================
+      TROUBLESHOOTING
+====================================
+
+❌ "CORS error"
+   → Update FRONTEND_URL on Render to match Vercel URL
+
+❌ "Connection refused"
+   → Auth server might be sleeping (free tier)
+   → Wait 30 seconds and try again
+
+❌ "Email not sending"
+   → Check email credentials on Render
+   → Check Gmail app password is correct
+
+❌ "Service unavailable"
+   → Check Render logs for errors
+   → Verify environment variables are set
+
+====================================
+       NEED HELP?
+====================================
+
+📖 See detailed guides:
+   - COMPLETE_DEPLOYMENT_GUIDE.md (full guide)
+   - server/DEPLOY_QUICK.md (5-min auth server)
+   - AUTH_SERVER_DEPLOYMENT.md (detailed auth)
+
+====================================
