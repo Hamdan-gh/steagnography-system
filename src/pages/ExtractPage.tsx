@@ -158,23 +158,23 @@ const ExtractPage: React.FC<ExtractPageProps> = ({ user: _user }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Download className="w-8 h-8 text-accent" />
+        <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+          <Download className="w-6 h-6 sm:w-8 sm:h-8 text-accent" />
           Extract Hidden Audio
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-2">
           Upload a stego PNG created by this tool to recover the hidden audio
         </p>
         
         {/* Backend Status Indicator */}
         {backendOnline !== null && (
-          <div className={`mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+          <div className={`mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm ${
             backendOnline 
               ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
               : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
@@ -199,9 +199,9 @@ const ExtractPage: React.FC<ExtractPageProps> = ({ user: _user }) => {
                   Select the image containing hidden audio and provide the encryption key
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 sm:space-y-6">
                 <div>
-                  <Label className="mb-2 block">Stego Image</Label>
+                  <Label className="mb-2 block text-sm sm:text-base">Stego Image</Label>
                   <FileUpload
                     onFileSelect={handleImageSelect}
                     acceptedTypes={[...FILE_CONSTRAINTS.SUPPORTED_IMAGE_FORMATS]}
@@ -215,7 +215,7 @@ const ExtractPage: React.FC<ExtractPageProps> = ({ user: _user }) => {
                     icon="image"
                   />
                   {stegoImage && (
-                    <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+                    <div className="mt-2 text-xs sm:text-sm text-green-600 dark:text-green-400 break-all">
                       ✓ Image loaded: {stegoImage.name} ({formatBytes(stegoImage.size)})
                     </div>
                   )}
@@ -294,8 +294,8 @@ const ExtractPage: React.FC<ExtractPageProps> = ({ user: _user }) => {
                 </Button>
 
                 {/* Info Box */}
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-blue-900 dark:text-blue-100">
+                <div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <h4 className="font-semibold text-xs sm:text-sm mb-2 flex items-center gap-2 text-blue-900 dark:text-blue-100">
                     <FileAudio className="w-4 h-4" />
                     Extraction Process
                   </h4>
@@ -314,50 +314,52 @@ const ExtractPage: React.FC<ExtractPageProps> = ({ user: _user }) => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-2xl mx-auto space-y-6"
+          className="max-w-2xl mx-auto space-y-4 sm:space-y-6"
         >
           {/* Success Card */}
           <Card className="bg-gradient-to-r from-success/10 to-success/5 border-success">
-            <CardContent className="p-8">
+            <CardContent className="p-4 sm:p-6 md:p-8">
               <div className="text-center">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: 'spring' }}
-                  className="inline-flex items-center justify-center w-16 h-16 bg-success rounded-full mb-4"
+                  className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-success rounded-full mb-3 sm:mb-4"
                 >
-                  <CheckCircle className="w-8 h-8 text-white" />
+                  <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </motion.div>
                 
-                <h3 className="text-2xl font-bold text-success mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-success mb-2 px-2">
                   Extraction Successful!
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 px-2">
                   Your audio file has been successfully extracted and decrypted
                 </p>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">File Name</p>
-                    <p className="font-semibold mt-1">{result.audio_name}</p>
+                <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6 px-2">
+                  <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">File Name</p>
+                    <p className="font-semibold mt-1 text-sm sm:text-base truncate" title={result.audio_name}>
+                      {result.audio_name}
+                    </p>
                   </div>
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">File Size</p>
-                    <p className="font-semibold mt-1">{formatBytes(result.audio_size)}</p>
+                  <div className="p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">File Size</p>
+                    <p className="font-semibold mt-1 text-sm sm:text-base">{formatBytes(result.audio_size)}</p>
                   </div>
                 </div>
 
-                <div className="flex gap-3 justify-center">
-                  <Button onClick={handleDownloadAudio} size="lg">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center px-2">
+                  <Button onClick={handleDownloadAudio} size="lg" className="w-full sm:w-auto">
                     <Download className="w-4 h-4 mr-2" />
                     Download Audio
                   </Button>
-                  <Button onClick={handleReset} variant="outline" size="lg">
+                  <Button onClick={handleReset} variant="outline" size="lg" className="w-full sm:w-auto">
                     Extract Another
                   </Button>
                 </div>
 
-                <p className="text-xs text-gray-500 mt-6">
+                <p className="text-xs text-gray-500 mt-4 sm:mt-6">
                   Extraction completed in {result.execution_time.toFixed(2)} seconds
                 </p>
               </div>
@@ -367,10 +369,10 @@ const ExtractPage: React.FC<ExtractPageProps> = ({ user: _user }) => {
           {/* Audio Player */}
           {result.audio_base64 && (
             <Card>
-              <CardHeader>
-                <CardTitle>Audio Preview</CardTitle>
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Audio Preview</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-4 sm:pb-6">
                 <audio
                   controls
                   className="w-full"
