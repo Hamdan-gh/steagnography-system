@@ -1,3 +1,4 @@
-import handler from './register.js';
+import { withHealthHandler } from '../../server/lib/http.js';
+import { getAuthHealthStatus } from '../../server/authService.js';
 
-export default handler;
+export default withHealthHandler(getAuthHealthStatus);

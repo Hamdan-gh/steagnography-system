@@ -1,14 +1,4 @@
-import { createAuthApp } from '../../server/createAuthApp.js';
+import { withJsonHandler } from '../../server/lib/http.js';
+import { registerUser } from '../../server/authService.js';
 
-let app;
-
-function getApp() {
-  if (!app) {
-    app = createAuthApp();
-  }
-  return app;
-}
-
-export default function handler(req, res) {
-  return getApp()(req, res);
-}
+export default withJsonHandler(registerUser);

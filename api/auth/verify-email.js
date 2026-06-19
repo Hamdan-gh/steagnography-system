@@ -1,3 +1,4 @@
-import handler from './register.js';
+import { withJsonHandler } from '../../server/lib/http.js';
+import { verifyUserEmail } from '../../server/authService.js';
 
-export default handler;
+export default withJsonHandler(verifyUserEmail);

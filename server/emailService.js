@@ -26,6 +26,9 @@ export function createEmailTransporter() {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASSWORD,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     tls: {
       minVersion: 'TLSv1.2',
     },
@@ -178,12 +181,7 @@ export function buildResendVerificationEmail({ fullName, code, email, minutes = 
 }
 
 export async function sendVerificationEmail(transporter, { to, fullName, code, email, isResend = false }) {
-  const expiryMs = parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600000', 10);
-  const minutes = Math.max(1, Math.round(expiryMs / 60000));
-  const template = isResend
-    ? buildResendVerificationEmail({ fullName, code, email, minutes })
-    : buildVerificationEmail({ fullName, code, email, minutes });
-
+  const template = buildEmailTemplate({ fullName, code, email, isResend });
   const messageId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@${process.env.EMAIL_DOMAIN || 'stegagen.local'}>`;
 
   await transporter.sendMail({
@@ -200,4 +198,62 @@ export async function sendVerificationEmail(transporter, { to, fullName, code, e
       'X-Auto-Response-Suppress': 'All',
     },
   });
+}
+
+function buildEmailTemplate({ fullName, code, email, isResend = false }) {
+  const expiryMs = parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600000', 10);
+  const minutes = Math.max(1, Math.round(expiryMs / 60000));
+  return isResend
+    ? buildResendVerificationEmail({ fullName, code, email, minutes })
+    : buildVerificationEmail({ fullName, code, email, minutes });
+}
+
+async function sendViaResend({ to, fullName, code, email, isResend = false }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return false;
+
+  const template = buildEmailTemplate({ fullName, code, email, isResend });
+  const from = process.env.RESEND_FROM || process.env.EMAIL_FROM || `${APP_NAME} <onboarding@resend.dev>`;
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: [to],
+      subject: template.subject,
+      text: template.text,
+      html: template.html,
+      reply_to: REPLY_TO || undefined,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Resend API error (${response.status}): ${body}`);
+  }
+
+  return true;
+}
+
+async function sendViaSmtp(payload) {
+  const transporter = createEmailTransporter();
+  await sendVerificationEmail(transporter, payload);
+}
+
+/** Preferred entry point for auth routes. Uses Resend on Vercel when configured. */
+export async function sendVerificationEmailMessage(payload) {
+  if (process.env.RESEND_API_KEY) {
+    await sendViaResend(payload);
+    return;
+  }
+
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    throw new Error('Email is not configured. Set RESEND_API_KEY or SMTP credentials in Vercel.');
+  }
+
+  await sendViaSmtp(payload);
 }

@@ -10,8 +10,24 @@
   },
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://stegagen-api.onrender.com/api/:path*"
+      "source": "/api/embed",
+      "destination": "https://stegagen-api.onrender.com/api/embed"
+    },
+    {
+      "source": "/api/extract",
+      "destination": "https://stegagen-api.onrender.com/api/extract"
+    },
+    {
+      "source": "/api/analyze",
+      "destination": "https://stegagen-api.onrender.com/api/analyze"
+    },
+    {
+      "source": "/api/health",
+      "destination": "https://stegagen-api.onrender.com/api/health"
+    },
+    {
+      "source": "/api/download/:path*",
+      "destination": "https://stegagen-api.onrender.com/api/download/:path*"
     },
     {
       "source": "/(.*)",
