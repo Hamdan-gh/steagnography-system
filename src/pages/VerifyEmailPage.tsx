@@ -140,20 +140,20 @@ const VerifyEmailPage: React.FC = () => {
 
   if (verified) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 p-4 sm:p-6">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 p-3 sm:p-4 md:p-6">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', duration: 0.6 }}
-          className="text-center"
+          className="text-center px-4"
         >
-          <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/50">
-            <Check className="w-12 h-12 text-white" />
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg shadow-green-500/50">
+            <Check className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Email Verified!
           </h2>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
             Redirecting to login...
           </p>
         </motion.div>
@@ -162,48 +162,48 @@ const VerifyEmailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 p-4 sm:p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 p-3 sm:p-4 md:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <div className="text-center mb-6 sm:mb-8">
+        <div className="text-center mb-4 sm:mb-6">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring' }}
-            className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-blue-500/50 dark:shadow-blue-500/30"
+            className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-blue-500/50 dark:shadow-blue-500/30"
           >
-            <Shield className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+            <Shield className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
           </motion.div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-clip-text text-transparent px-4">
             {APP_NAME}
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-2 font-medium">
+          <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-300 mt-1 sm:mt-2 font-medium px-4">
             Verify Your Email
           </p>
         </div>
 
         <Card className="border border-gray-200 dark:border-slate-700/50 bg-white/98 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl dark:shadow-blue-500/10 overflow-hidden">
-          <CardHeader className="space-y-2 pb-6 bg-gradient-to-br from-transparent to-blue-50/50 dark:to-blue-950/30">
-            <CardTitle className="text-xl sm:text-2xl text-gray-900 dark:text-slate-100 font-bold">
+          <CardHeader className="space-y-1.5 sm:space-y-2 pb-4 sm:pb-6 bg-gradient-to-br from-transparent to-blue-50/50 dark:to-blue-950/30 px-4 sm:px-6 pt-4 sm:pt-6">
+            <CardTitle className="text-lg sm:text-xl md:text-2xl text-gray-900 dark:text-slate-100 font-bold">
               Check Your Email
             </CardTitle>
-            <CardDescription className="text-gray-600 dark:text-slate-400">
+            <CardDescription className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">
               We sent a 6-digit verification code to
               <br />
-              <strong className="text-blue-600 dark:text-blue-400">{email}</strong>
+              <strong className="text-blue-600 dark:text-blue-400 break-all">{email}</strong>
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-6 pt-6">
+          <CardContent className="space-y-4 sm:space-y-6 pt-4 sm:pt-6 px-3 sm:px-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3 text-center">
+              <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2 sm:mb-3 text-center">
                 Enter Verification Code
               </label>
-              <div className="flex gap-2 justify-center" onPaste={handlePaste}>
+              <div className="flex gap-1.5 sm:gap-2 justify-center px-2 sm:px-0" onPaste={handlePaste}>
                 {code.map((digit, index) => (
                   <Input
                     key={index}
@@ -214,34 +214,34 @@ const VerifyEmailPage: React.FC = () => {
                     value={digit}
                     onChange={(e) => handleChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
-                    className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold bg-gray-50 dark:bg-slate-800/80 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition-all"
+                    className="w-10 h-12 sm:w-12 sm:h-14 md:w-14 md:h-16 text-center text-xl sm:text-2xl font-bold bg-gray-50 dark:bg-slate-800/80 border-gray-300 dark:border-slate-700 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition-all rounded-lg"
                     disabled={loading || verified}
                   />
                 ))}
               </div>
-              <p className="text-xs text-gray-500 dark:text-slate-400 text-center mt-3">
+              <p className="text-xs text-gray-500 dark:text-slate-400 text-center mt-2 sm:mt-3 px-2">
                 Tip: You can paste the code directly
               </p>
             </div>
 
             <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-slate-400 mb-2">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 mb-2">
                 Didn't receive the code?
               </p>
               <Button
                 variant="ghost"
                 onClick={handleResendCode}
                 disabled={resending || loading}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold text-xs sm:text-sm h-8 sm:h-10"
               >
                 {resending ? (
                   <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
+                    <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     Resend Code
                   </>
                 )}
@@ -249,10 +249,10 @@ const VerifyEmailPage: React.FC = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col gap-4 pt-4 pb-6">
+          <CardFooter className="flex flex-col gap-3 sm:gap-4 pt-3 sm:pt-4 pb-4 sm:pb-6 px-4 sm:px-6">
             <Button
               onClick={handleVerify}
-              className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg shadow-blue-500/30 dark:shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-500/30 transition-all duration-300"
+              className="w-full h-10 sm:h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm sm:text-base font-semibold shadow-lg shadow-blue-500/30 dark:shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-500/30 transition-all duration-300"
               disabled={loading || code.join('').length !== 6}
             >
               {loading ? (
@@ -267,12 +267,12 @@ const VerifyEmailPage: React.FC = () => {
               ) : (
                 <>
                   Verify Email
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                 </>
               )}
             </Button>
 
-            <p className="text-xs sm:text-sm text-center text-gray-600 dark:text-slate-400">
+            <p className="text-xs sm:text-sm text-center text-gray-600 dark:text-slate-400 px-2">
               Wrong email?{' '}
               <button
                 onClick={() => navigate('/signup')}
@@ -284,12 +284,12 @@ const VerifyEmailPage: React.FC = () => {
           </CardFooter>
         </Card>
 
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800/50 space-y-2">
-          <p className="text-xs text-center text-gray-600 dark:text-gray-400">
+        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800/50 space-y-1.5 sm:space-y-2 mx-2 sm:mx-0">
+          <p className="text-xs text-center text-gray-600 dark:text-gray-400 leading-relaxed">
             <strong>Did not get the email?</strong> Check your spam or promotions folder and mark it as &quot;Not spam&quot; so future codes arrive in your inbox.
           </p>
           <p className="text-xs text-center text-gray-500 dark:text-gray-500">
-            The message subject is <strong>StegaGen Secure — your verification code</strong>.
+            The message subject is <strong>Verify your StegaGen Secure account</strong>.
           </p>
         </div>
       </motion.div>
