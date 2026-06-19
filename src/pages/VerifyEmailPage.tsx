@@ -170,17 +170,21 @@ const VerifyEmailPage: React.FC = () => {
         className="w-full max-w-md"
       >
         <div className="text-center mb-4 sm:mb-6">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring' }}
-            className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-blue-500/50 dark:shadow-blue-500/30"
-          >
-            <Shield className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
-          </motion.div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-clip-text text-transparent px-4">
-            {APP_NAME}
-          </h1>
+          <Link to="/" className="inline-block">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring' }}
+              className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-3 sm:mb-4 shadow-lg shadow-blue-500/50 dark:shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/60 dark:hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 cursor-pointer"
+            >
+              <Shield className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
+            </motion.div>
+          </Link>
+          <Link to="/" className="inline-block hover:opacity-80 transition-opacity">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-clip-text text-transparent px-4">
+              {APP_NAME}
+            </h1>
+          </Link>
           <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-300 mt-1 sm:mt-2 font-medium px-4">
             Verify Your Email
           </p>
